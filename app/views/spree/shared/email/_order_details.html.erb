@@ -91,23 +91,21 @@
   </tbody>
 </table>
 
-<%# TODO really messy... scopes on Spree::Order might clean things up %>
-<% if gem_available? 'spree_digital' %>
-<% digital_items = @order.line_items.select { |i| i.digital? } %>
-<% unless digital_items.empty? %>
+<% if gem_available? 'spree_digital' and @order.some_digital? %>
 <div class="spacer_15">&nbsp;</div>
 <h2><span><%= t(:digital_download_links) %></span></h2>
 <p><%= t(:digital_email_description) %></p>
-
-<% digital_items.each do |digital_item| %>
+<% @order.line_items.select { |i| i.digital? }.each do |digital_item| %>
 <% digital_item.digital_links.each do |digital_link| %>
 <% digital_url = digital_url(:host => Spree::Config.get(:site_url), :secret => digital_link.secret) %>
 <p>
-  <%= digital_item.variant.name %>
-  <%= " (#{digital_link.digital.attachment.original_filename})" if digital_item.digital_links.length > 1 %>:<br/>
+  <%=
+    digital_item.variant.name + 
+    ( digital_item.digital_links.length > 1 ? " (#{digital_link.digital.attachment.original_filename})" : '' ) +
+    ":"
+  %><br/>
   <%= link_to digital_url, digital_url%>
 </p>
-<% end %>
 <% end %>
 <% end %>
 <% end %>
